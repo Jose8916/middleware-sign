@@ -1,0 +1,214 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}">
+    {% if request.user.is_superuser %}
+        <link rel="stylesheet" href="{% static "assets/css/pe-icon-7-stroke.css" %}">
+        <link rel="stylesheet" href="{% static "assets/css/helper.css" %}">
+        <style>
+            .app-sidebar {
+                width:200px;
+                display:flex;
+                flex: 0 0 280px;
+                z-index:11;
+                overflow:hidden;
+                min-width:200px;
+                margin-top: -60px;
+                padding-top: 60px;
+                transition: all .2s;
+            }
+            .app-sidebar__heading {
+                font-size: .8rem;
+                margin: .75rem 0;
+                font-weight: bold;
+                color: #3f6ad8;
+                position: relative;
+                text-transform: uppercase;
+            }
+            .vertical-nav-menu {
+                margin: 0;
+                padding: 0;
+                position: relative;
+                list-style: none;
+            }
+            .app-main__outer {
+                width:100%;
+                height: 800px;
+            }
+            #content-main {
+                display: flex;
+            }
+            #content {
+                width: 95% !important;
+            }
+        </style>
+    {% endif %}
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+    {% if request.user.is_superuser %}
+        <div id="content-main">
+            <div class="app-sidebar sidebar-shadow">
+                <ul class="vertical-nav-menu metismenu">
+                    {% if app_list %}
+                        {% for app in app_list %}
+                            <li class="app-sidebar__heading">
+                                <a href="{{ app.app_url }}" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+                            </li>
+                            {% for model in app.models %}
+                                <li>
+                                    {% if model.admin_url %}
+                                        <a href="{{ model.admin_url }}">
+                                            <i class="metismenu-icon pe-7s-display2 pe-2x pe-va"></i>
+                                            <!-- <i class="nav-link-icon fa fa-cog"></i> -->
+                                            {{ model.name }}
+                                        </a>
+                                    {% else %}
+                                        {{ model.name }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <p>{% trans 'You don’t have permission to view or edit anything.' %}</p>
+                    {% endif %}
+                    <li class="app-sidebar__heading">
+                        <a href="{{ app.app_url }}">Reportes</a>
+                    </li>
+
+                    <li>
+                        <a href="{% url 'userbyrange' %}">
+                            <i class="metismenu-icon pe-7s-display2 pe-2x pe-va"></i>
+                            Usuarios sumarize por site.
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'userbydate' %}">
+                            <i class="metismenu-icon pe-7s-display2 pe-2x pe-va"></i>
+                            Usuarios registrados por site.
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'user_repeated' %}">
+                            <i class="metismenu-icon pe-7s-display2 pe-2x pe-va"></i>
+                            Cantidad de usuarios repetidos.
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="app-main__outer">
+
+                <iframe src="/admin/body_dashboard" name="iframe1" id="iframe1" frameborder="0" border="0"
+                        cellspacing="0"  style="border-style: none;overflow:hidden;height:100%;width:100%" height="100%" width="100%"></iframe>
+            </div>
+        </div>
+        <script type="text/javascript" src="{% static "assets/scripts/main.js" %}"></script>
+    {% else %}
+        <div id="content-main">
+            {% if app_list %}
+                {% for app in app_list %}
+                    <div class="app-{{ app.app_label }} module">
+                    <table>
+                    <caption>
+                        <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+                    </caption>
+                    {% for model in app.models %}
+                        <tr class="model-{{ model.object_name|lower }}">
+                        {% if model.admin_url %}
+                            <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                        {% else %}
+                            <th scope="row">{{ model.name }}</th>
+                        {% endif %}
+
+                        {% if model.add_url %}
+                            <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+
+                        {% if model.admin_url %}
+                            {% if model.view_only %}
+                            <td><a href="{{ model.admin_url }}" class="viewlink">{% trans 'View' %}</a></td>
+                            {% else %}
+                            <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                            {% endif %}
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </table>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>{% trans "You don't have permission to view or edit anything." %}</p>
+            {% endif %}
+            <!---custom report -->
+            <!--
+            <div class="app-{{ app.app_label }} module">
+                <table>
+                    <caption>
+                        <a href="{{ app.app_url }}" class="section"
+                           title="">Reportes</a>
+                        </a>
+                    </caption>
+
+                    <tr>
+                        <td>
+                            <a href="{% url 'userbydate' %}">Reporte de cantidad de usuarios registrados por site.</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="{% url 'user_repeated' %}">Reporte de cantidad de usuarios repetidos.</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            -->
+            <!--End custom report-->
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar %}
+    {% if not request.user.is_superuser %}
+        <div id="content-related">
+            <div class="module" id="recent-actions-module">
+                <h2>{% trans 'Recent actions' %}</h2>
+                <h3>{% trans 'My actions' %}</h3>
+                    {% load log %}
+                    {% get_admin_log 10 as admin_log for_user user %}
+                    {% if not admin_log %}
+                    <p>{% trans 'None available' %}</p>
+                    {% else %}
+                    <ul class="actionlist">
+                    {% for entry in admin_log %}
+                    <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                        {% if entry.is_deletion or not entry.get_admin_url %}
+                            {{ entry.object_repr }}
+                        {% else %}
+                            <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                        {% endif %}
+                        <br>
+                        {% if entry.content_type %}
+                            <span class="mini quiet">{% filter capfirst %}{{ entry.content_type }}{% endfilter %}</span>
+                        {% else %}
+                            <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,66 @@
+{% load i18n static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://www.chartjs.org/dist/2.9.4/Chart.min.js"></script>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+    <script type="text/javascript">
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'bar',
+            // The data for our dataset
+                data: {{data_graph|safe}},
+            // Configuration options go here
+            options: {}
+        });
+    </script>
+
+    <br><br>
+    <h3>Verificaciones de cuenta por dia</h3>
+    <table border="1">
+        <tr>
+            <th>
+                Fecha
+            </th>
+            <th>
+                Facebook
+            </th>
+            <th>
+                Google
+            </th>
+            <th>
+                Password
+            </th>
+            <th>
+                Total
+            </th>
+        </tr>
+
+        {% for reporte in reportes %}
+            <tr>
+                <td>
+                    {{ reporte.name }}
+                </td>
+                <td>
+                    {{ reporte.cantidad_face }}
+                </td>
+                <td>
+                    {{ reporte.cantidad_google }}
+                </td>
+                <td>
+                    {{ reporte.cantidad_pass }}
+                </td>
+                <td>
+                    {{ reporte.count }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

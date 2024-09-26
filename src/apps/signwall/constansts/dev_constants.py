@@ -1,0 +1,1 @@
+EVENTS_LAMBDA = 'https://81wrbw2iq6.execute-api.us-east-1.amazonaws.com/dev'
